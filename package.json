@@ -1,0 +1,36 @@
+{
+  "name": "@cfn/diff",
+  "version": "1.0.0",
+  "description": "Generate a diff of CloudFormation stacks",
+  "main": "cfn-diff.js",
+  "scripts": {
+    "test": "nyc --all ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dougmoscrop/cfn_diff-node.git"
+  },
+  "keywords": [
+    "cloudformation",
+    "aws"
+  ],
+  "author": "Doug Moscrop <doug.moscrop@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dougmoscrop/cfn_diff-node/issues"
+  },
+  "homepage": "https://github.com/dougmoscrop/cfn_diff-node#readme",
+  "devDependencies": {
+    "ava": "^1.0.1",
+    "nyc": "^13.1.0",
+    "proxyquire": "^2.1.0",
+    "sinon": "^7.2.3"
+  },
+  "dependencies": {
+    "@cfn/graph": "^1.1.0",
+    "amazon-s3-uri": "0.0.3",
+    "aws-sdk": "^2.0.0",
+    "deep-equal": "^1.0.1",
+    "object-hash": "^1.3.1"
+  }
+}
