@@ -1,6 +1,6 @@
 {
   "name": "@cfn/diff",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate a diff of CloudFormation stacks",
   "main": "cfn-diff.js",
   "scripts": {
