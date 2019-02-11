@@ -3,8 +3,8 @@
 const getAction = require('./get-action');
 
 module.exports = function getChangedParameters(changeSet, stack) {
-    const currentParameters = changeSet.Parameters || {};
-    const previousParameters = stack.Parameters || {};
+    const currentParameters = changeSet.Parameters || [];
+    const previousParameters = stack.Parameters || [];
 
     const previousValues = previousParameters.reduce((memo, { ParameterKey, ParameterValue }) => {
         memo[ParameterKey] = ParameterValue;
@@ -22,6 +22,7 @@ module.exports = function getChangedParameters(changeSet, stack) {
             Type: 'Parameter',
             ParameterChange: {
                 ParameterKey,
+                Action: getAction(previousValue, ParameterValue),
                 From: previousValue,
                 To: ParameterValue
             },

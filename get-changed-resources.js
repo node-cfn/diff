@@ -6,7 +6,7 @@ const graph = require('@cfn/graph');
 // because CloudFormation always returns Changes for them, even when there aren't any
 module.exports = (changeSet, stack, parameters) => {
     const template = changeSet.ProcessedTemplate;
-    const existingResources = stack.ProcessedTemplate.Resources;
+    const existingResources = stack.ProcessedTemplate.Resources || {};
 
     const { resourceChanges, stackModifyChanges } = changeSet.Changes.reduce((memo, change) => {
         if (change.Type === 'Resource') {

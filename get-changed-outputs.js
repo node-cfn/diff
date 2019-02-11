@@ -22,6 +22,7 @@ module.exports = function getChangedOutputs(changeSet, stack) {
                 Type: 'Output',
                 OutputChange: {
                     OutputKey: name,
+                    Action: getAction(previous, current),
                     To: current,
                     From: previous
                 },
