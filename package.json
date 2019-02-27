@@ -4,7 +4,8 @@
   "description": "Generate a diff of CloudFormation stacks",
   "main": "cfn-diff.js",
   "scripts": {
-    "test": "nyc --all ava"
+    "test": "nyc --all ava",
+    "posttest": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   "homepage": "https://github.com/dougmoscrop/cfn_diff-node#readme",
   "devDependencies": {
     "ava": "^1.0.1",
+    "eslint": "^5.14.1",
     "nyc": "^13.1.0",
     "proxyquire": "^2.1.0",
     "sinon": "^7.2.3"

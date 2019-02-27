@@ -5,8 +5,8 @@ const hash = require('object-hash');
 
 const createChangeSet = require('./create-change-set');
 const getChanges = require('./get-changes');
+const getDetailedChanges = ('./get-changes');
 const getStack = require('./get-stack');
-const getTemplate = require('./get-template');
 
 module.exports = function diff(opts = {}) {
   const {
@@ -54,33 +54,8 @@ module.exports = function diff(opts = {}) {
     .then(changes => {
       if (detailed) {
         const s3 = new aws.S3(credentials);
-
-        return Promise.all(changes.map(change => {
-          if (change.Type !== 'Resource') {
-            return change;
-          }
-
-          const { ResourceChange } = change;
-          const { Action, ResourceType } = ResourceChange;
-
-          if (ResourceType === 'AWS::CloudFormation::Stack' && (Action === 'Modify' || Action === 'Add')) {
-            const { From, To } = change.TemplateURL;
-
-            return Promise.all([From, To].map(url => {
-              return url ? getTemplate(s3, url) : {};
-            }))
-            .then(([from, to]) => {
-              ResourceChange.Template = {
-                From: from,
-                To: to
-              };
-
-              return change;
-            });
-          }
-        }));
+        return getDetailedChanges(s3, changes);
       }
-
       return changes;
     })
     .then(changes => {

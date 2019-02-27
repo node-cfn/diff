@@ -1,7 +1,6 @@
 'use strict';
 
 const test = require('ava');
-const sinon = require('sinon');
 
 const getAction = require('../get-action');
 

@@ -1,4 +1,4 @@
-'use strict';;
+'use strict';
 
 const MAX_RETRIES = 100;
 const WAIT_MS = 5000;
@@ -15,7 +15,7 @@ module.exports = function createChangeSet(cf, name, params) {
 
 function wait(cf, StackName, ChangeSetName, attempt = 1, NextToken) {
   if (attempt > MAX_RETRIES) {
-    throw new Error(`Too many attempts waiting for ChangeSet ${ChangeSet} to create for ${StackName}`);
+    throw new Error(`Too many attempts waiting for ChangeSet ${ChangeSetName} to create for ${StackName}`);
   }
 
   return cf.describeChangeSet({
@@ -59,4 +59,4 @@ function changeSet(cf, ChangeSetType, ChangeSetName, params) {
             return changeSet;
           });
       });
-};
+}

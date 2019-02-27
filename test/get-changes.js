@@ -41,10 +41,10 @@ test('throws when status is failed', t => {
 });
 
 test('returns no changes when there were none in the change set', t => {
-    const getChangedParameters = sinon.stub();
-    const getChangedConditions = sinon.stub();
-    const getChangedOutputs = sinon.stub();
-    const getChangedResources = sinon.stub();
+    const getChangedParameters = sinon.stub().throws();
+    const getChangedConditions = sinon.stub().throws();
+    const getChangedOutputs = sinon.stub().throws();
+    const getChangedResources = sinon.stub().throws();
 
     const getChanges = proxyquire('../get-changes', {
         './get-changed-parameters': getChangedParameters,
@@ -54,6 +54,25 @@ test('returns no changes when there were none in the change set', t => {
     });
 
     const changes = getChanges({ Status: 'FAILED', StatusReason: `The submitted information didn't contain changes` }, {});
+
+    t.true(Array.isArray(changes));
+    t.is(changes.length, 0);
+});
+
+test('returns no changes when there were none determined', t => {
+    const getChangedParameters = sinon.stub().returns({});
+    const getChangedConditions = sinon.stub().returns({});
+    const getChangedOutputs = sinon.stub().returns({});
+    const getChangedResources = sinon.stub().returns({});
+
+    const getChanges = proxyquire('../get-changes', {
+        './get-changed-parameters': getChangedParameters,
+        './get-changed-conditions': getChangedConditions,
+        './get-changed-outputs': getChangedOutputs,
+        './get-changed-resources': getChangedResources
+    });
+
+    const changes = getChanges({ Status: 'CREATE_COMPLETE' }, {});
 
     t.true(Array.isArray(changes));
     t.is(changes.length, 0);
