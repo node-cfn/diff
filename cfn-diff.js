@@ -5,7 +5,7 @@ const hash = require('object-hash');
 
 const createChangeSet = require('./create-change-set');
 const getChanges = require('./get-changes');
-const getDetailedChanges = ('./get-changes');
+const getDetailedChanges = require('./get-detailed-changes');
 const getStack = require('./get-stack');
 
 module.exports = function diff(opts = {}) {
