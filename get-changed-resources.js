@@ -6,15 +6,59 @@ const graph = require('@cfn/graph');
 // because CloudFormation always returns Changes for them, even when there aren't any
 module.exports = (changeSet, stack, parameters) => {
     const template = changeSet.ProcessedTemplate;
+
+    const resources = template.Resources || {};
     const existingResources = stack.ProcessedTemplate.Resources || {};
 
     const { resourceChanges, stackModifyChanges } = changeSet.Changes.reduce((memo, change) => {
         if (change.Type === 'Resource') {
             const { ResourceChange } = change;
-            const { ResourceType, LogicalResourceId } = ResourceChange;
+            const { ResourceType, LogicalResourceId, Action } = ResourceChange;
 
-            if (ResourceChange.Action === 'Modify' && ResourceType === 'AWS::CloudFormation::Stack') {
-                memo.stackModifyChanges[LogicalResourceId] = change;
+            const existingResource = existingResources[LogicalResourceId];
+            const resource = resources[LogicalResourceId];
+
+            ResourceChange.ResourceKey = LogicalResourceId;
+            ResourceChange.From = existingResource;
+            ResourceChange.To = resource;
+
+            if (ResourceType === 'AWS::CloudFormation::Stack') {
+                if (Action === 'Remove') {
+                    memo.resourceChanges[LogicalResourceId] = change;
+
+                    const oldTemplateURL = existingResource.Properties.TemplateURL
+
+                    change.TemplateURL = {
+                        From: oldTemplateURL
+                    };
+                } else {
+                    const newTemplateURL = resource.Properties.TemplateURL;
+
+                    if (Action === 'Add') {
+                        memo.resourceChanges[LogicalResourceId] = change;
+
+                        change.TemplateURL = {
+                            To: newTemplateURL
+                        };
+                    } else if (Action === 'Modify') {
+                        memo.stackModifyChanges[LogicalResourceId] = change;
+
+                        if (existingResource && existingResource.Type === 'AWS::CloudFormation::Stack') {
+                            const oldTemplateURL = existingResource.Properties.TemplateURL
+
+                            if (oldTemplateURL !== newTemplateURL) {
+                                change.TemplateURL = {
+                                    To: newTemplateURL,
+                                    From: oldTemplateURL
+                                };
+                            }
+                        } else {
+                            change.TemplateURL = {
+                                To: newTemplateURL
+                            };
+                        }
+                    }
+                }
             } else {
                 if (LogicalResourceId in memo.resourceChanges) {
                     throw new Error(`Sorry, changing the type of an existing resource (${LogicalResourceId}) is not implemented yet`);
@@ -31,16 +75,10 @@ module.exports = (changeSet, stack, parameters) => {
 
     // A resource changed if any reference changed: order matters!
     graph({ template }).reverse().forEach(({ logicalId, resource, references }) => {
-        const existingResource = existingResources[logicalId];
         const change = resourceChanges[logicalId] || stackModifyChanges[logicalId];
 
         if (change) {
             const { ResourceChange } = change;
-            const { Action } = ResourceChange;
-
-            ResourceChange.ResourceKey = logicalId;
-            ResourceChange.From = existingResource;
-            ResourceChange.To = resource;
 
             change.References = references.reduce((memo, reference) => {
                 if (reference in resourceChanges) {
@@ -53,29 +91,6 @@ module.exports = (changeSet, stack, parameters) => {
             }, []);
             
             if (resource.Type === 'AWS::CloudFormation::Stack') {
-                const newTemplateURL = resource.Properties.TemplateURL;
-
-                if (Action === 'Add') {
-                    change.TemplateURL = {
-                        To: newTemplateURL
-                    };
-                } else if (Action === 'Modify') {
-                    if (existingResource && existingResource.Type === 'AWS::CloudFormation::Stack') {
-                        const oldTemplateURL = existingResource.Properties.TemplateURL
-
-                        if (oldTemplateURL !== newTemplateURL) {
-                            change.TemplateURL = {
-                                To: newTemplateURL,
-                                From: oldTemplateURL
-                            };
-                        }
-                    } else {
-                        change.TemplateURL = {
-                            To: newTemplateURL
-                        };
-                    }
-                }
-
                 const modifications = ResourceChange.Details.filter(d => d.Evaluation !== 'Dynamic');
 
                 if (change.References.length > 0 || change.TemplateURL || modifications.length > 0) {
