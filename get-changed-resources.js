@@ -91,7 +91,9 @@ module.exports = (changeSet, stack, parameters) => {
             }, []);
             
             if (resource.Type === 'AWS::CloudFormation::Stack') {
-                const modifications = ResourceChange.Details.filter(d => d.Evaluation !== 'Dynamic');
+                const modifications = ResourceChange.Details.filter(d => {
+                    return d.Evaluation !== 'Dynamic' || d.ChangeSource === 'DirectModification';
+                });
 
                 if (change.References.length > 0 || change.TemplateURL || modifications.length > 0) {
                     resourceChanges[logicalId] = change;

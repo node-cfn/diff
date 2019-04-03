@@ -57,7 +57,7 @@ test('gets template for stacks', t => {
             To: 'test2'
         },
         ResourceChange: {
-            Action: 'Add',
+            Action: 'Modify',
             ResourceType: 'AWS::CloudFormation::Stack'
         }
     };
@@ -66,6 +66,56 @@ test('gets template for stacks', t => {
         .then(result => {
             t.is(getTemplate.callCount, 2);
 
+            t.true(Array.isArray(result));
+            t.is(result.length, 1);
+        });
+});
+
+test('gets single template for stacks', t => {
+    const getTemplate = sinon.stub();
+
+    const getDetailedChanges = proxyquire('../get-detailed-changes', {
+        './get-template': getTemplate
+    });
+
+    const change = {
+        Type: 'Resource',
+        TemplateURL: {
+            From: 'test',
+        },
+        ResourceChange: {
+            Action: 'Add',
+            ResourceType: 'AWS::CloudFormation::Stack'
+        }
+    };
+
+    return getDetailedChanges(sinon.stub(), [change])
+        .then(result => {
+            t.is(getTemplate.callCount, 1);
+
+            t.true(Array.isArray(result));
+            t.is(result.length, 1);
+        });
+});
+
+test('stack with no template change (e.g. just properties)', t => {
+    const getTemplate = sinon.stub();
+
+    const getDetailedChanges = proxyquire('../get-detailed-changes', {
+        './get-template': getTemplate
+    });
+
+    const change = {
+        Type: 'Resource',
+        ResourceChange: {
+            Action: 'Add',
+            ResourceType: 'AWS::CloudFormation::Stack'
+        }
+    };
+
+    return getDetailedChanges(sinon.stub(), [change])
+        .then(result => {
+            t.is(getTemplate.callCount, 0);
             t.true(Array.isArray(result));
             t.is(result.length, 1);
         });
