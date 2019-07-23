@@ -6,14 +6,16 @@ const sinon = require('sinon');
 
 test('passes non-resource changes through', t => {
     const getTemplate = sinon.stub();
+    const validateTemplate = sinon.stub().resolves();
 
     const getDetailedChanges = proxyquire('../get-detailed-changes', {
-        './get-template': getTemplate
+        './get-template': getTemplate,
+        './validate-template': validateTemplate
     });
 
     const change = { Type: 'Output' };
 
-    return getDetailedChanges(sinon.stub(), [change])
+    return getDetailedChanges(sinon.stub(), sinon.stub(), [change])
         .then(result => {
             t.is(getTemplate.callCount, 0);
 
@@ -24,9 +26,11 @@ test('passes non-resource changes through', t => {
 
 test('pass non-cloudformation stack resources through', t => {
     const getTemplate = sinon.stub();
+    const validateTemplate = sinon.stub().resolves();
 
     const getDetailedChanges = proxyquire('../get-detailed-changes', {
-        './get-template': getTemplate
+        './get-template': getTemplate,
+        './validate-template': validateTemplate
     });
 
     const change = {
@@ -34,7 +38,7 @@ test('pass non-cloudformation stack resources through', t => {
         ResourceChange: { Action: 'Modify', ResourceType: 'AWS::Some::Thing' }
     };
 
-    return getDetailedChanges(sinon.stub(), [change])
+    return getDetailedChanges(sinon.stub(), sinon.stub(), [change])
         .then(result => {
             t.is(getTemplate.callCount, 0);
 
@@ -45,9 +49,11 @@ test('pass non-cloudformation stack resources through', t => {
 
 test('gets template for stacks', t => {
     const getTemplate = sinon.stub();
+    const validateTemplate = sinon.stub().resolves();
 
     const getDetailedChanges = proxyquire('../get-detailed-changes', {
-        './get-template': getTemplate
+        './get-template': getTemplate,
+        './validate-template': validateTemplate
     });
 
     const change = {
@@ -62,7 +68,7 @@ test('gets template for stacks', t => {
         }
     };
 
-    return getDetailedChanges(sinon.stub(), [change])
+    return getDetailedChanges(sinon.stub(), sinon.stub(), [change])
         .then(result => {
             t.is(getTemplate.callCount, 2);
 
@@ -73,9 +79,11 @@ test('gets template for stacks', t => {
 
 test('gets single template for stacks', t => {
     const getTemplate = sinon.stub();
+    const validateTemplate = sinon.stub().resolves();
 
     const getDetailedChanges = proxyquire('../get-detailed-changes', {
-        './get-template': getTemplate
+        './get-template': getTemplate,
+        './validate-template': validateTemplate
     });
 
     const change = {
@@ -89,7 +97,7 @@ test('gets single template for stacks', t => {
         }
     };
 
-    return getDetailedChanges(sinon.stub(), [change])
+    return getDetailedChanges(sinon.stub(), sinon.stub(), [change])
         .then(result => {
             t.is(getTemplate.callCount, 1);
 
@@ -100,9 +108,11 @@ test('gets single template for stacks', t => {
 
 test('stack with no template change (e.g. just properties)', t => {
     const getTemplate = sinon.stub();
+    const validateTemplate = sinon.stub().resolves();
 
     const getDetailedChanges = proxyquire('../get-detailed-changes', {
-        './get-template': getTemplate
+        './get-template': getTemplate,
+        './validate-template': validateTemplate
     });
 
     const change = {
@@ -113,7 +123,7 @@ test('stack with no template change (e.g. just properties)', t => {
         }
     };
 
-    return getDetailedChanges(sinon.stub(), [change])
+    return getDetailedChanges(sinon.stub(), sinon.stub(), [change])
         .then(result => {
             t.is(getTemplate.callCount, 0);
             t.true(Array.isArray(result));

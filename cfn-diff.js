@@ -54,7 +54,7 @@ module.exports = function diff(opts = {}) {
     .then(changes => {
       if (detailed) {
         const s3 = new aws.S3(credentials);
-        return getDetailedChanges(s3, changes);
+        return getDetailedChanges(s3, cf, changes);
       }
       return changes;
     })
