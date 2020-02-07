@@ -9,6 +9,7 @@ extends:
 
 parserOptions:
     sourceType: "scripts"
+    ecmaVersion: 8
 
 rules:
     arrow-body-style: 0
